@@ -1,0 +1,24 @@
+{
+  "name": "mqtt-crypto-monitor",
+  "version": "1.0.0",
+  "description": "Real-time crypto price monitoring system using MQTT",
+  "scripts": {
+    "broker": "node broker/broker.js",
+    "pub:price": "node publishers/pricePublisher.js",
+    "pub:alert": "node publishers/alertPublisher.js",
+    "pub:market": "node publishers/marketPublisher.js",
+    "sub:logger": "node subscribers/loggerSubscriber.js",
+    "sub:alert": "node subscribers/alertSubscriber.js",
+    "dashboard": "node dashboard/server.js",
+    "start": "concurrently \"npm run broker\" \"npm run dashboard\""
+  },
+  "dependencies": {
+    "aedes": "^0.51.2",
+    "axios": "^1.6.0",
+    "concurrently": "^8.2.0",
+    "express": "^4.18.2",
+    "mqtt": "^5.3.4",
+    "net": "^1.0.2",
+    "ws": "^8.16.0"
+  }
+}
