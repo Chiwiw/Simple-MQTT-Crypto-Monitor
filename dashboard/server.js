@@ -22,6 +22,24 @@ const state = {
   trending: null,
   publishers: {},
   mqttFeatures: [],
+  // Fitur 2: Wildcard — semua topic yang ditangkap via crypto/#
+  wildcardTopics: {},
+  // Fitur 2: Wildcard (+) — single-level wildcard matches
+  // crypto/price/+ dipakai alertPublisher, crypto/status/+ dipakai alertSubscriber
+  wildcardPlusGroups: {
+    'crypto/price/+':  { usedBy: 'alertPublisher',  description: 'subscribe harga semua coin sekaligus', matches: {}, count: 0 },
+    'crypto/status/+': { usedBy: 'alertSubscriber', description: 'monitor status semua publisher',         matches: {}, count: 0 },
+  },
+  // Fitur 3: Topic Alias — mapping alias integer → topic asli
+  topicAliases: {
+    '1': { topic: 'crypto/price/bitcoin',  symbol: 'BTC', lastSeen: null, count: 0 },
+    '2': { topic: 'crypto/price/ethereum', symbol: 'ETH', lastSeen: null, count: 0 },
+    '3': { topic: 'crypto/price/solana',   symbol: 'SOL', lastSeen: null, count: 0 },
+  },
+  // Fitur 9: Shared Subscription — load balancing counter
+  sharedSub: { dashboardCount: 0, loggerCount: 0, totalAlerts: 0 },
+  // Fitur 10: Flow Control — message rate
+  flowControl: { receiveMaximum: 50, msgCount: 0, rate: '0.0' },
 };
 
 // Connect ke MQTT broker sebagai subscriber dashboard
@@ -54,6 +72,42 @@ mqttClient.on('connect', () => {
 mqttClient.on('message', (topic, message, packet) => {
   try {
     const data = JSON.parse(message.toString());
+    const _now = new Date().toISOString();
+
+    // Fitur 2: Wildcard — catat setiap topic unik yang masuk via crypto/#
+    const isNewTopic = !state.wildcardTopics[topic];
+    if (!state.wildcardTopics[topic]) state.wildcardTopics[topic] = { count: 0, lastSeen: null };
+    state.wildcardTopics[topic].count++;
+    state.wildcardTopics[topic].lastSeen = _now;
+    broadcast({ type: 'wildcard_update', data: state.wildcardTopics });
+    if (isNewTopic) {
+      logFeature('Wildcard (#)', `Topic baru tertangkap: "${topic}" — satu subscription crypto/# mencakup semua sub-topic`);
+    }
+
+    // Fitur 2: Wildcard (+) — deteksi match single-level wildcard
+    if (topic.startsWith('crypto/price/') && topic.split('/').length === 3) {
+      const grp = state.wildcardPlusGroups['crypto/price/+'];
+      const isNewMatch = !grp.matches[topic];
+      grp.matches[topic] = _now;
+      grp.count++;
+      if (isNewMatch) {
+        logFeature('Wildcard (+)', `alertPublisher subscribe "crypto/price/+" → match: "${topic}" — + hanya satu level, tidak menangkap sub-level`);
+      }
+      broadcast({ type: 'wildcard_plus_update', data: state.wildcardPlusGroups });
+    }
+    if (topic.startsWith('crypto/status/') && topic.split('/').length === 3) {
+      const grp = state.wildcardPlusGroups['crypto/status/+'];
+      const isNewMatch = !grp.matches[topic];
+      grp.matches[topic] = _now;
+      grp.count++;
+      if (isNewMatch) {
+        logFeature('Wildcard (+)', `alertSubscriber subscribe "crypto/status/+" → match: "${topic}" — memantau semua publisher status sekaligus`);
+      }
+      broadcast({ type: 'wildcard_plus_update', data: state.wildcardPlusGroups });
+    }
+
+    // Fitur 10: Flow Control — hitung total pesan masuk tiap interval
+    state.flowControl.msgCount++;
 
     let event = null;
 
@@ -68,6 +122,21 @@ mqttClient.on('message', (topic, message, packet) => {
         logFeature('Retain', `${data.symbol} dipublish retain:true → broker simpan pesan ini untuk subscriber yang baru connect`);
       }
 
+      // Fitur 3: Topic Alias — tandai alias mana yang aktif (dipakai pricePublisher)
+      const _aliasEntry = Object.entries(state.topicAliases).find(([, v]) => v.topic === topic);
+      if (_aliasEntry) {
+        const [_aliasId, _aliasInfo] = _aliasEntry;
+        const _prevCount = _aliasInfo.count;
+        state.topicAliases[_aliasId].lastSeen = _now;
+        state.topicAliases[_aliasId].count++;
+        broadcast({ type: 'topic_alias_update', data: state.topicAliases });
+        if (_prevCount === 0) {
+          logFeature('Topic Alias', `Alias ${_aliasId} → "${topic}" — integer ID mengganti nama topic panjang, hemat bandwidth`);
+        } else {
+          logFeature('Topic Alias', `Alias ${_aliasId} digunakan ke-${_prevCount + 1} kali — broker decode integer ke full topic name`);
+        }
+      }
+
     } else if (topic === 'crypto/alerts') {
       state.alerts.unshift({ ...data, id: Date.now() });
       if (state.alerts.length > 20) state.alerts = state.alerts.slice(0, 20);
@@ -76,14 +145,19 @@ mqttClient.on('message', (topic, message, packet) => {
       if (packet.properties?.messageExpiryInterval) {
         logFeature('Message Expiry', `Alert expires dalam ${packet.properties.messageExpiryInterval}s`);
       }
+      // Fitur 9: track total alert yang publish ke topic ini
+      state.sharedSub.totalAlerts++;
+      broadcast({ type: 'shared_sub_update', data: state.sharedSub });
 
     } else if (topic === 'crypto/market/global') {
       state.market = data;
       event = { type: 'market_update', data };
+      logFeature('QoS 0', `Market global diterima — fire-and-forget, tanpa acknowledgment dari broker`);
 
     } else if (topic === 'crypto/market/trending') {
       state.trending = data;
       event = { type: 'trending_update', data };
+      logFeature('QoS 0', `Trending coins diterima — QoS 0 cocok untuk data non-kritis yang sering diupdate`);
 
     } else if (topic.startsWith('crypto/status/')) {
       const publisher = topic.split('/')[2];
@@ -136,20 +210,17 @@ wss.on('connection', (ws) => {
         const requestId = `req-${Date.now()}`;
         const responseTopic = `crypto/response/dashboard-${requestId}`;
 
-        mqttClient.subscribe(responseTopic, { qos: 1 }, () => {
-          mqttClient.publish('crypto/request/alert', JSON.stringify({ request_id: requestId, requester: 'dashboard' }), {
-            qos: 1,
-            properties: {
-              responseTopic,
-              correlationData: Buffer.from(requestId),
-              messageExpiryInterval: 15,
-            },
-          });
-          logFeature('Request-Response', `Dashboard mengirim request ke alert publisher`);
+        // crypto/# sudah men-cover responseTopic — tidak perlu subscribe lagi.
+        // Langsung publish dan log agar Feature Log selalu muncul.
+        mqttClient.publish('crypto/request/alert', JSON.stringify({ request_id: requestId, requester: 'dashboard' }), {
+          qos: 1,
+          properties: {
+            responseTopic,
+            correlationData: Buffer.from(requestId),
+            messageExpiryInterval: 15,
+          },
         });
-
-        // Unsubscribe setelah dapat response
-        setTimeout(() => mqttClient.unsubscribe(responseTopic), 20000);
+        logFeature('Request-Response', `Dashboard mengirim request ke alertPublisher — menunggu response di "${responseTopic}"`);
       }
     } catch (e) { }
   });
@@ -157,6 +228,38 @@ wss.on('connection', (ws) => {
 
 // Serve static dashboard
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Fitur 9: Shared Subscription — dashboard ikut bergabung ke group $share/loggers
+// bersaing giliran dengan loggerSubscriber di terminal
+const sharedSubClient = mqtt.connect(BROKER_URL, {
+  clientId: 'dashboard-shared-monitor',
+  protocolVersion: 5,
+  clean: true,
+  properties: { receiveMaximum: 20 },
+});
+sharedSubClient.on('connect', () => {
+  console.log('✅ Shared Sub Monitor joined $share/loggers/crypto/alerts');
+  sharedSubClient.subscribe('$share/loggers/crypto/alerts', { qos: 1 });
+});
+sharedSubClient.on('message', (topic, message) => {
+  state.sharedSub.dashboardCount++;
+  // loggerCount = totalAlerts yang masuk topic ini DIKURANGI yang diterima dashboard
+  state.sharedSub.loggerCount = state.sharedSub.totalAlerts - state.sharedSub.dashboardCount;
+  broadcast({ type: 'shared_sub_update', data: state.sharedSub });
+  logFeature('Shared Subscription', `Dashboard giliran terima alert #${state.sharedSub.dashboardCount} dari total ${state.sharedSub.totalAlerts} di group "loggers"`);
+});
+sharedSubClient.on('error', (err) => console.error('Shared sub monitor error:', err.message));
+
+// Fitur 10: Flow Control — hitung message rate setiap 5 detik lalu broadcast
+setInterval(() => {
+  state.flowControl.rate = (state.flowControl.msgCount / 5).toFixed(1);
+  const count = state.flowControl.msgCount;
+  state.flowControl.msgCount = 0;
+  broadcast({ type: 'flow_control_update', data: { rate: state.flowControl.rate, receiveMaximum: state.flowControl.receiveMaximum } });
+  if (count > 0) {
+    logFeature('Flow Control', `receiveMaximum=50 aktif — ${count} msg/5s (${state.flowControl.rate} msg/s) diterima dashboard-server`);
+  }
+}, 5000);
 
 server.listen(PORT, () => {
   console.log(`🌐 Dashboard running at http://localhost:${PORT}`);

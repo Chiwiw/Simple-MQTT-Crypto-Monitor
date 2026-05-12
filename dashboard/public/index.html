@@ -385,6 +385,124 @@
     }
 
     .flash { animation: flashGreen 0.6s ease; }
+
+    /* ================================================================
+       FITUR 2 — WILDCARD TOPICS
+    ================================================================ */
+    .grid-features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+
+    .wc-pattern {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 3px;
+      color: var(--accent); background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.2); border-radius: 6px;
+      padding: 5px 10px; text-align: center; margin-bottom: 10px;
+    }
+    .wildcard-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+    .wildcard-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 8px; background: var(--surface2); border-radius: 5px;
+      border-left: 2px solid var(--muted); font-family: var(--mono); font-size: 9px;
+      animation: slideIn 0.3s ease;
+    }
+    .wildcard-item.wc-price  { border-left-color: var(--accent); }
+    .wildcard-item.wc-alert  { border-left-color: var(--red); }
+    .wildcard-item.wc-market { border-left-color: var(--accent2); }
+    .wildcard-item.wc-status { border-left-color: var(--warn); }
+    .wildcard-item.wc-other  { border-left-color: var(--muted); }
+    .wildcard-topic { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wildcard-count { background: rgba(0,229,255,0.1); color: var(--accent); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; }
+    .wildcard-time  { color: var(--muted); font-size: 8px; white-space: nowrap; flex-shrink: 0; }
+
+    .wc-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .wc-section-label {
+      font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: 1.5px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .wc-plus-pattern {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+      border-radius: 5px; padding: 4px 10px; text-align: center; margin-bottom: 6px;
+    }
+    .wc-plus-pattern.price  { color: var(--accent2); background: rgba(0,255,136,0.05); border: 1px solid rgba(0,255,136,0.2); }
+    .wc-plus-pattern.status { color: var(--warn);    background: rgba(255,107,53,0.05); border: 1px solid rgba(255,107,53,0.2); }
+    .wc-plus-list { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+    .wc-plus-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 8px; background: var(--surface2); border-radius: 4px;
+      font-family: var(--mono); font-size: 9px;
+      animation: slideIn 0.3s ease;
+    }
+    .wc-plus-item.price  { border-left: 2px solid var(--accent2); }
+    .wc-plus-item.status { border-left: 2px solid var(--warn); }
+    .wc-plus-match { flex: 1; color: var(--text); }
+    .wc-plus-badge {
+      font-size: 8px; padding: 1px 5px; border-radius: 3px; flex-shrink: 0;
+    }
+    .wc-plus-item.price  .wc-plus-badge { background: rgba(0,255,136,0.1);  color: var(--accent2); }
+    .wc-plus-item.status .wc-plus-badge { background: rgba(255,107,53,0.1); color: var(--warn); }
+    .wc-used-by { font-size: 8px; color: var(--muted); margin-bottom: 4px; font-family: var(--mono); }
+
+    /* ================================================================
+       FITUR 3 — TOPIC ALIAS
+    ================================================================ */
+    .alias-explain {
+      font-size: 9px; color: var(--muted); font-family: var(--mono);
+      line-height: 1.6; margin-bottom: 12px;
+      border-left: 2px solid var(--border); padding-left: 8px;
+    }
+    .alias-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; background: var(--surface2); border-radius: 8px;
+      margin-bottom: 6px; transition: background 0.4s, border-color 0.4s;
+      border: 1px solid transparent;
+    }
+    .alias-item.active { background: rgba(0,229,255,0.06); border-color: rgba(0,229,255,0.2); }
+    .alias-id {
+      font-family: var(--mono); font-size: 22px; font-weight: 700;
+      color: var(--accent); width: 24px; text-align: center; flex-shrink: 0;
+    }
+    .alias-arrow { color: var(--muted); font-size: 10px; flex-shrink: 0; }
+    .alias-info { flex: 1; min-width: 0; }
+    .alias-topic { font-family: var(--mono); font-size: 9px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .alias-time  { font-size: 8px; color: var(--muted); margin-top: 2px; }
+    .alias-count { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--accent2); flex-shrink: 0; }
+    .alias-pulse { animation: flashGreen 0.5s ease; }
+
+    /* ================================================================
+       FITUR 9 — SHARED SUBSCRIPTION
+    ================================================================ */
+    .shared-group-badge {
+      font-family: var(--mono); font-size: 9px; color: var(--accent);
+      background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 5px; padding: 4px 10px; text-align: center; margin-bottom: 12px;
+      word-break: break-all; letter-spacing: 0.5px;
+    }
+    .shared-members { display: flex; gap: 8px; margin-bottom: 10px; }
+    .shared-member { flex: 1; background: var(--surface2); border-radius: 8px; padding: 8px; text-align: center; }
+    .shared-member-name  { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .shared-member-count { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+    .shared-member-label { font-size: 8px; color: var(--muted); margin-top: 2px; }
+    .shared-member.winner .shared-member-count { color: var(--accent2); }
+    .shared-bar-wrap { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+    .shared-bar-left  { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); float: left; border-radius: 4px 0 0 4px; transition: width 0.6s ease; }
+    .shared-pct { font-family: var(--mono); font-size: 9px; color: var(--muted); display: flex; justify-content: space-between; }
+    .shared-total { background: var(--surface2); border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .shared-total-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .shared-total-num   { font-family: var(--mono); font-size: 14px; color: var(--accent); font-weight: 700; }
+
+    /* ================================================================
+       FITUR 10 — FLOW CONTROL
+    ================================================================ */
+    .flow-clients { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .flow-client-item { background: var(--surface2); border-radius: 6px; padding: 7px 10px; }
+    .flow-client-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .flow-client-name   { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+    .flow-client-max    { font-family: var(--mono); font-size: 11px; color: var(--accent); font-weight: 700; }
+    .flow-bar-track     { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .flow-bar-fill      { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 2px; }
+    .flow-rate-box      { background: var(--surface2); border-radius: 8px; padding: 10px; text-align: center; }
+    .flow-rate-num      { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--accent2); line-height: 1; }
+    .flow-rate-label    { font-size: 9px; color: var(--muted); margin-top: 3px; }
+    .flow-desc          { font-size: 9px; color: var(--muted); font-family: var(--mono); line-height: 1.6; margin-bottom: 10px; border-left: 2px solid var(--border); padding-left: 8px; }
   </style>
 </head>
 <body>
@@ -493,6 +611,132 @@
     </div>
   </div>
 
+  <!-- ============================================================
+       FITUR 2, 3, 9, 10 — Panel khusus 4 fitur "invisible"
+  ============================================================ -->
+  <div class="grid-features">
+
+    <!-- Fitur 2: Wildcard Topics -->
+    <div class="card">
+      <div class="card-label">WILDCARD TOPICS <span class="badge">Fitur 2</span><span class="badge">#</span><span class="badge">+</span></div>
+
+      <!-- Multi-level # -->
+      <div class="wc-section-label">MULTI-LEVEL — dashboard &amp; loggerSubscriber</div>
+      <div class="wc-pattern">crypto / #</div>
+      <div class="wc-used-by">subscribe sekali → tangkap semua sub-topic apapun levelnya</div>
+      <div class="wildcard-list" id="wildcardList" style="max-height:120px">
+        <div class="empty-state">Menunggu pesan...</div>
+      </div>
+
+      <hr class="wc-divider">
+
+      <!-- Single-level + (alertPublisher) -->
+      <div class="wc-section-label">SINGLE-LEVEL — alertPublisher</div>
+      <div class="wc-plus-pattern price">crypto / price / +</div>
+      <div class="wc-used-by">+ hanya cocok 1 level → harga BTC/ETH/SOL sekaligus</div>
+      <div class="wc-plus-list" id="wcPlusPrice">
+        <div class="empty-state" style="padding:6px">Menunggu harga...</div>
+      </div>
+
+      <!-- Single-level + (alertSubscriber) -->
+      <div class="wc-section-label">SINGLE-LEVEL — alertSubscriber</div>
+      <div class="wc-plus-pattern status">crypto / status / +</div>
+      <div class="wc-used-by">+ menangkap semua publisher status, tidak lebih dalam</div>
+      <div class="wc-plus-list" id="wcPlusStatus">
+        <div class="empty-state" style="padding:6px">Menunggu status publisher...</div>
+      </div>
+    </div>
+
+    <!-- Fitur 3: Topic Alias -->
+    <div class="card">
+      <div class="card-label">TOPIC ALIAS <span class="badge">Fitur 3</span></div>
+      <div class="alias-explain">
+        pricePublisher mengirim integer alias<br>
+        sebagai pengganti nama topic panjang<br>
+        → hemat bandwidth setiap publish
+      </div>
+      <div id="aliasList">
+        <div class="empty-state">Menunggu harga pertama...</div>
+      </div>
+    </div>
+
+    <!-- Fitur 9: Shared Subscription -->
+    <div class="card">
+      <div class="card-label">SHARED SUBSCRIPTION <span class="badge">Fitur 9</span></div>
+      <div class="shared-group-badge">$share / loggers / crypto/alerts</div>
+      <div class="shared-members">
+        <div class="shared-member" id="shared-member-dashboard">
+          <div class="shared-member-name">Dashboard</div>
+          <div class="shared-member-count" id="shared-dashboard">0</div>
+          <div class="shared-member-label">alert diterima</div>
+        </div>
+        <div class="shared-member" id="shared-member-logger">
+          <div class="shared-member-name">Logger (Terminal)</div>
+          <div class="shared-member-count" id="shared-logger">0</div>
+          <div class="shared-member-label">alert diterima</div>
+        </div>
+      </div>
+      <div class="shared-bar-wrap">
+        <div style="height:100%;display:flex">
+          <div class="shared-bar-left" id="shared-bar-left" style="width:50%"></div>
+        </div>
+      </div>
+      <div class="shared-pct">
+        <span id="shared-pct-left">—</span>
+        <span id="shared-pct-right">—</span>
+      </div>
+      <div class="shared-total">
+        <div class="shared-total-label">Total alert dipublish</div>
+        <div class="shared-total-num" id="shared-total">0</div>
+      </div>
+    </div>
+
+    <!-- Fitur 10: Flow Control -->
+    <div class="card">
+      <div class="card-label">FLOW CONTROL <span class="badge">Fitur 10</span></div>
+      <div class="flow-desc">
+        receiveMaximum membatasi jumlah<br>
+        in-flight PUBLISH sebelum ACK<br>
+        → cegah broker/client overload
+      </div>
+      <div class="flow-clients" id="flowClients">
+        <div class="flow-client-item">
+          <div class="flow-client-header">
+            <div class="flow-client-name">dashboard-server</div>
+            <div class="flow-client-max">max&nbsp;50</div>
+          </div>
+          <div class="flow-bar-track"><div class="flow-bar-fill" style="width:40%"></div></div>
+        </div>
+        <div class="flow-client-item">
+          <div class="flow-client-header">
+            <div class="flow-client-name">price-publisher</div>
+            <div class="flow-client-max">max&nbsp;10</div>
+          </div>
+          <div class="flow-bar-track"><div class="flow-bar-fill" style="width:20%"></div></div>
+        </div>
+        <div class="flow-client-item">
+          <div class="flow-client-header">
+            <div class="flow-client-name">logger-subscriber</div>
+            <div class="flow-client-max">max&nbsp;20</div>
+          </div>
+          <div class="flow-bar-track"><div class="flow-bar-fill" style="width:30%"></div></div>
+        </div>
+        <div class="flow-client-item">
+          <div class="flow-client-header">
+            <div class="flow-client-name">alert-subscriber</div>
+            <div class="flow-client-max">max&nbsp;10</div>
+          </div>
+          <div class="flow-bar-track"><div class="flow-bar-fill" style="width:20%"></div></div>
+        </div>
+      </div>
+      <div class="flow-rate-box">
+        <div class="flow-rate-num" id="flow-rate-value">0.0</div>
+        <div class="flow-rate-label">msg / detik (dashboard server)</div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- MQTT Feature Log -->
   <div class="grid-full">
     <div class="card">
@@ -539,6 +783,11 @@
         if (msg.data.trending) updateTrending(msg.data.trending);
         Object.entries(msg.data.publishers || {}).forEach(([pub, data]) => updatePublisher(pub, data));
         (msg.data.mqttFeatures || []).reverse().forEach(f => logFeature(f, false));
+        if (msg.data.wildcardTopics)    updateWildcardTopics(msg.data.wildcardTopics);
+        if (msg.data.wildcardPlusGroups) updateWildcardPlus(msg.data.wildcardPlusGroups);
+        if (msg.data.topicAliases)       updateTopicAliases(msg.data.topicAliases);
+        if (msg.data.sharedSub)      updateSharedSub(msg.data.sharedSub);
+        if (msg.data.flowControl)    updateFlowControl(msg.data.flowControl);
         break;
       case 'price_update':
         updatePrice(msg.coin, msg.data, msg.retained);
@@ -557,6 +806,21 @@
         break;
       case 'feature_log':
         logFeature(msg.data, true);
+        break;
+      case 'wildcard_update':
+        updateWildcardTopics(msg.data);
+        break;
+      case 'wildcard_plus_update':
+        updateWildcardPlus(msg.data);
+        break;
+      case 'topic_alias_update':
+        updateTopicAliases(msg.data);
+        break;
+      case 'shared_sub_update':
+        updateSharedSub(msg.data);
+        break;
+      case 'flow_control_update':
+        updateFlowControl(msg.data);
         break;
       case 'alert_response':
         // Menampilkan response dari Fitur 8
@@ -699,6 +963,151 @@
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'request_alert_status' }));
     }
+  }
+
+  // ================================================================
+  // Fitur 2: Wildcard Topics
+  // ================================================================
+  function updateWildcardTopics(topics) {
+    const list = document.getElementById('wildcardList');
+    if (!list) return;
+    const empty = list.querySelector('.empty-state');
+    if (empty) empty.remove();
+
+    const sorted = Object.entries(topics).sort((a, b) => new Date(b[1].lastSeen) - new Date(a[1].lastSeen));
+    sorted.forEach(([topic, info]) => {
+      const safeId = 'wc-' + topic.replace(/[/#$]/g, '-');
+      let el = document.getElementById(safeId);
+      if (!el) {
+        el = document.createElement('div');
+        el.id = safeId;
+        const cls = topic.startsWith('crypto/price/')   ? 'wc-price'
+                  : topic === 'crypto/alerts'            ? 'wc-alert'
+                  : topic.startsWith('crypto/market/')   ? 'wc-market'
+                  : topic.startsWith('crypto/status/')   ? 'wc-status' : 'wc-other';
+        el.className = `wildcard-item ${cls}`;
+        list.prepend(el);
+      }
+      const time = info.lastSeen ? new Date(info.lastSeen).toLocaleTimeString('id-ID') : '';
+      el.innerHTML = `
+        <div class="wildcard-topic">${topic}</div>
+        <div class="wildcard-count">${info.count}</div>
+        <div class="wildcard-time">${time}</div>
+      `;
+    });
+  }
+
+  // ================================================================
+  // Fitur 2: Wildcard (+) Single-level
+  // ================================================================
+  function updateWildcardPlus(groups) {
+    // crypto/price/+  →  alertPublisher
+    const priceGrp = groups['crypto/price/+'];
+    if (priceGrp && Object.keys(priceGrp.matches).length > 0) {
+      const cont = document.getElementById('wcPlusPrice');
+      if (cont) {
+        const empty = cont.querySelector('.empty-state');
+        if (empty) empty.remove();
+        Object.keys(priceGrp.matches).forEach(topic => {
+          const id = 'wcp-' + topic.replace(/\//g, '-');
+          if (!document.getElementById(id)) {
+            const coin = topic.split('/')[2].toUpperCase();
+            const el = document.createElement('div');
+            el.id = id;
+            el.className = 'wc-plus-item price';
+            el.innerHTML = `<div class="wc-plus-match">${topic}</div><div class="wc-plus-badge">${coin}</div>`;
+            cont.appendChild(el);
+          }
+        });
+      }
+    }
+    // crypto/status/+  →  alertSubscriber
+    const statusGrp = groups['crypto/status/+'];
+    if (statusGrp && Object.keys(statusGrp.matches).length > 0) {
+      const cont = document.getElementById('wcPlusStatus');
+      if (cont) {
+        const empty = cont.querySelector('.empty-state');
+        if (empty) empty.remove();
+        Object.keys(statusGrp.matches).forEach(topic => {
+          const id = 'wcs-' + topic.replace(/\//g, '-');
+          if (!document.getElementById(id)) {
+            const pub = topic.split('/')[2];
+            const el = document.createElement('div');
+            el.id = id;
+            el.className = 'wc-plus-item status';
+            el.innerHTML = `<div class="wc-plus-match">${topic}</div><div class="wc-plus-badge">${pub}</div>`;
+            cont.appendChild(el);
+          }
+        });
+      }
+    }
+  }
+
+  // ================================================================
+  // Fitur 3: Topic Alias
+  // ================================================================
+  function updateTopicAliases(aliases) {
+    const container = document.getElementById('aliasList');
+    if (!container) return;
+    const empty = container.querySelector('.empty-state');
+    if (empty) empty.remove();
+
+    container.innerHTML = '';
+    Object.entries(aliases).forEach(([id, info]) => {
+      const el = document.createElement('div');
+      el.id = `alias-${id}`;
+      el.className = 'alias-item' + (info.count > 0 ? ' active' : '');
+      const time = info.lastSeen ? new Date(info.lastSeen).toLocaleTimeString('id-ID') : '—';
+      el.innerHTML = `
+        <div class="alias-id">${id}</div>
+        <div class="alias-arrow">→</div>
+        <div class="alias-info">
+          <div class="alias-topic">${info.topic}</div>
+          <div class="alias-time">Terakhir: ${time}</div>
+        </div>
+        <div class="alias-count">×${info.count}</div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  // ================================================================
+  // Fitur 9: Shared Subscription
+  // ================================================================
+  function updateSharedSub(data) {
+    const { dashboardCount = 0, loggerCount = 0, totalAlerts = 0 } = data;
+    // loggerCount = total yang masuk - yang diterima dashboard
+    const loggerActual = Math.max(0, totalAlerts - dashboardCount);
+    const dashPct  = totalAlerts > 0 ? Math.round((dashboardCount / totalAlerts) * 100) : 50;
+    const logPct   = 100 - dashPct;
+
+    const elD = document.getElementById('shared-dashboard');
+    const elL = document.getElementById('shared-logger');
+    const bar  = document.getElementById('shared-bar-left');
+    const pL   = document.getElementById('shared-pct-left');
+    const pR   = document.getElementById('shared-pct-right');
+    const tot  = document.getElementById('shared-total');
+    const mD   = document.getElementById('shared-member-dashboard');
+    const mL   = document.getElementById('shared-member-logger');
+
+    if (elD) elD.textContent = dashboardCount;
+    if (elL) elL.textContent = loggerActual;
+    if (bar)  bar.style.width = dashPct + '%';
+    if (pL)   pL.textContent  = `Dashboard ${dashPct}%`;
+    if (pR)   pR.textContent  = `Logger ${logPct}%`;
+    if (tot)  tot.textContent  = totalAlerts;
+
+    // Highlight siapa yang lebih banyak
+    if (mD) mD.classList.toggle('winner', dashboardCount >= loggerActual);
+    if (mL) mL.classList.toggle('winner', loggerActual > dashboardCount);
+  }
+
+  // ================================================================
+  // Fitur 10: Flow Control
+  // ================================================================
+  function updateFlowControl(data) {
+    const el = document.getElementById('flow-rate-value');
+    if (el) el.textContent = data.rate || '0.0';
   }
 
   connect();
