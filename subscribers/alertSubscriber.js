@@ -9,6 +9,7 @@ const RESPONSE_TOPIC = `crypto/response/alert-subscriber-${Date.now()}`;
 
 const client = mqtt.connect(BROKER_URL, {
   clientId: 'subscriber-alert',
+  protocolVersion: 5,
   clean: false,
   properties: { receiveMaximum: 10 },
 });

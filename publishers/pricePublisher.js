@@ -1,9 +1,9 @@
 // publishers/pricePublisher.js
-// Publisher 1: Mengambil harga crypto dari CoinGecko API dan publish ke broker
+// Publisher 1: Simulasi harga crypto real-time dan publish ke broker
 // Mendemonstrasikan: QoS 1, Topic Alias (Fitur 3), User Properties (Fitur 4), Retain (Fitur 5)
+// CATATAN: Menggunakan data simulasi karena CoinGecko API diblokir firewall lokal.
 
 const mqtt = require('mqtt');
-const axios = require('axios');
 
 const BROKER_URL = 'mqtt://localhost:1883';
 const COINS = ['bitcoin', 'ethereum', 'solana'];
@@ -41,10 +41,27 @@ const client = mqtt.connect(BROKER_URL, {
   },
 });
 
+// Harga awal simulasi mendekati harga pasar nyata
+const simulatedPrices = {
+  bitcoin:  { price: 95000, market_cap: 1880000000000 },
+  ethereum: { price: 1800,  market_cap: 216000000000  },
+  solana:   { price: 148,   market_cap: 71000000000   },
+};
+
+// Fungsi random walk: gerakkan harga naik/turun kecil setiap tick
+function nextPrice(coin) {
+  const p = simulatedPrices[coin];
+  const changePct = (Math.random() - 0.48) * 1.2; // sedikit bias naik
+  p.price = parseFloat((p.price * (1 + changePct / 100)).toFixed(coin === 'bitcoin' ? 2 : coin === 'ethereum' ? 2 : 4));
+  p.market_cap = parseFloat((p.market_cap * (1 + changePct / 100)).toFixed(0));
+  return { price: p.price, market_cap: p.market_cap, change_24h: changePct.toFixed(2) };
+}
+
 let pollingInterval = null;
 
-client.on('connect', async () => {
+client.on('connect', () => {
   console.log('✅ Price Publisher connected to broker');
+  console.log('📊 Mode: Simulated prices (CoinGecko diblokir firewall)');
 
   // Publish status online dengan retain
   client.publish(
@@ -53,84 +70,47 @@ client.on('connect', async () => {
     { qos: 1, retain: true } // Fitur 5: Retain
   );
 
-  // Mulai polling harga setiap 10 detik (hanya set sekali)
+  // Mulai simulasi harga setiap 10 detik (hanya set sekali)
   if (!pollingInterval) {
-    await fetchAndPublish();
-    pollingInterval = setInterval(fetchAndPublish, 10000);
+    publishPrices();
+    pollingInterval = setInterval(publishPrices, 10000);
   }
 });
 
-async function fetchAndPublish() {
-  try {
-    let data;
-    try {
-      // Fetch harga real dari CoinGecko (gratis, no API key)
-      const response = await axios.get(
-        'https://api.coingecko.com/api/v3/simple/price',
-        {
-          params: {
-            ids: COINS.join(','),
-            vs_currencies: 'usd',
-            include_24hr_change: true,
-            include_market_cap: true,
-          },
-          timeout: 4000,
-        }
-      );
-      data = response.data;
-    } catch (apiErr) {
-      console.log('⚠️ CoinGecko API error/rate-limit. Menggunakan data simulasi...');
-      data = {
-        bitcoin: { usd: 64000 + (Math.random() * 1000 - 500), usd_24h_change: (Math.random() * 10 - 5), usd_market_cap: 1200000000000 },
-        ethereum: { usd: 3400 + (Math.random() * 100 - 50), usd_24h_change: (Math.random() * 10 - 5), usd_market_cap: 400000000000 },
-        solana: { usd: 140 + (Math.random() * 10 - 5), usd_24h_change: (Math.random() * 10 - 5), usd_market_cap: 60000000000 }
-      };
-    }
+function publishPrices() {
+  for (const coin of COINS) {
+    const { price, market_cap, change_24h } = nextPrice(coin);
+    const topic = `crypto/price/${coin}`;
+    const payload = {
+      coin,
+      symbol: SYMBOLS[coin],
+      price_usd: price,
+      change_24h,
+      market_cap,
+      timestamp: new Date().toISOString(),
+    };
 
-    for (const coin of COINS) {
-      if (!data[coin]) continue;
-
-      const topic = `crypto/price/${coin}`;
-      const payload = {
-        coin,
-        symbol: SYMBOLS[coin],
-        price_usd: data[coin].usd,
-        change_24h: data[coin].usd_24h_change?.toFixed(2),
-        market_cap: data[coin].usd_market_cap,
-        timestamp: new Date().toISOString(),
-      };
-
-      // Fitur 1: QoS 1 — At least once (harga penting, tidak boleh hilang)
-      // Fitur 4: User Properties — metadata di luar payload
-      // Fitur 5: Retain — subscriber baru langsung dapat harga terakhir
-      client.publish(topic, JSON.stringify(payload), {
-        qos: 1,
-        retain: true, // Fitur 5
-        properties: {
-          // Fitur 3: Topic Alias
-          topicAlias: TOPIC_ALIAS_MAP[topic],
-          // Fitur 4: User Properties
-          userProperties: {
-            source: 'coingecko-api',
-            unit: 'USD',
-            publisher_version: '1.0.0',
-          },
-          // Fitur 6: Message Expiry — harga kadaluarsa setelah 30 detik
-          messageExpiryInterval: 30,
+    // Fitur 1: QoS 1 — At least once (harga penting, tidak boleh hilang)
+    // Fitur 4: User Properties — metadata di luar payload
+    // Fitur 5: Retain — subscriber baru langsung dapat harga terakhir
+    client.publish(topic, JSON.stringify(payload), {
+      qos: 1,
+      retain: true, // Fitur 5
+      properties: {
+        // Fitur 3: Topic Alias
+        topicAlias: TOPIC_ALIAS_MAP[topic],
+        // Fitur 4: User Properties
+        userProperties: {
+          source: 'simulated-data',
+          unit: 'USD',
+          publisher_version: '1.0.0',
         },
-      });
+        // Fitur 6: Message Expiry — harga kadaluarsa setelah 30 detik
+        messageExpiryInterval: 30,
+      },
+    });
 
-      console.log(`📈 Published ${SYMBOLS[coin]}: $${data[coin].usd} (${data[coin].usd_24h_change?.toFixed(2)}%)`);
-    }
-  } catch (err) {
-    console.error('❌ Failed to fetch prices:', err.message);
-
-    // Publish error status
-    client.publish(
-      'crypto/errors',
-      JSON.stringify({ publisher: 'price-publisher', error: err.message, timestamp: new Date().toISOString() }),
-      { qos: 1 }
-    );
+    console.log(`📈 Published ${SYMBOLS[coin]}: $${price} (${change_24h}%)`);
   }
 }
 

@@ -1,7 +1,15 @@
 // broker/broker.js
-// MQTT Broker menggunakan Aedes (in-process broker)
+// MQTT Broker lokal menggunakan Aedes (in-process broker)
+//
+// CATATAN: Aedes hanya mendukung MQTT v3.1 dan v3.1.1 (protocolVersion 3 & 4).
+// Proyek ini menggunakan MQTT v5, sehingga semua client terhubung ke broker publik:
+//   mqtt://broker.emqx.io:1883  (mendukung MQTT v5 penuh)
+//
+// File ini dijalankan sebagai referensi/arsitektur. Untuk demo penuh jalankan:
+//   node dashboard/server.js  +  semua publisher & subscriber.
 
-const aedes = require('aedes')();
+const { Aedes } = require('aedes');
+const aedes = new Aedes();
 const net = require('net');
 
 const BROKER_PORT = 1883;

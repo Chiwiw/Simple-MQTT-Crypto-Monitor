@@ -8,6 +8,7 @@ const BROKER_URL = 'mqtt://localhost:1883';
 
 const client = mqtt.connect(BROKER_URL, {
   clientId: 'subscriber-logger-1',
+  protocolVersion: 5,
   clean: false,
   properties: {
     // Fitur 10: Flow Control — batasi berapa pesan yang diterima sebelum ACK
@@ -40,7 +41,8 @@ client.on('message', (topic, message, packet) => {
     // Log berdasarkan topic
     if (topic.startsWith('crypto/price/')) {
       const coin = topic.split('/')[2].toUpperCase();
-      console.log(`[${timestamp}] 💰 PRICE  | ${coin}: $${data.price_usd} | 24h: ${data.change_24h}% | QoS: ${packet.qos}`);
+      const retainTag = packet.retain ? '📌 [CACHE dari broker]' : '🔴 [LIVE publish baru]';
+      console.log(`[${timestamp}] 💰 PRICE  | ${coin}: $${data.price_usd} | 24h: ${data.change_24h}% | QoS: ${packet.qos} | ${retainTag}`);
 
     } else if (topic === 'crypto/alerts') {
       console.log(`[${timestamp}] 🚨 ALERT  | ${data.type} ${data.symbol} | ${data.change_pct}% | Level: ${data.level} | QoS: ${packet.qos}`);
