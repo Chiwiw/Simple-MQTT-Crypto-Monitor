@@ -5,7 +5,7 @@
 // CATATAN: Menggunakan data simulasi karena external API diblokir firewall lokal.
 const mqtt = require('mqtt');
 
-const BROKER_URL = 'mqtt://broker.emqx.io:1883';
+const BROKER_URL = 'mqtt://localhost:1883';
 
 const client = mqtt.connect(BROKER_URL, {
   clientId: 'publisher-market',

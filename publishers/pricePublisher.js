@@ -5,7 +5,7 @@
 
 const mqtt = require('mqtt');
 
-const BROKER_URL = 'mqtt://broker.emqx.io:1883';
+const BROKER_URL = 'mqtt://localhost:1883';
 const COINS = ['bitcoin', 'ethereum', 'solana'];
 const SYMBOLS = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL' };
 

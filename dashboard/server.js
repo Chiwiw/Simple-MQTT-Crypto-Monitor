@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const PORT = 3000;
-const BROKER_URL = 'mqtt://broker.emqx.io:1883';
+const BROKER_URL = 'mqtt://localhost:1883';
 
 // State cache untuk dashboard
 const state = {
@@ -62,7 +62,11 @@ mqttClient.on('message', (topic, message, packet) => {
       state.prices[coin] = { ...data, retained: packet.retain };
       event = { type: 'price_update', coin, data, retained: packet.retain, qos: packet.qos };
       logFeature('QoS 1', `Harga ${data.symbol} diterima dengan jaminan`);
-      if (packet.retain) logFeature('Retain', `Harga terakhir ${data.symbol} tersimpan di broker`);
+      if (packet.retain) {
+        logFeature('Retain', `📌 ${data.symbol} diterima dari CACHE broker — subscriber baru dapat data tanpa menunggu publish baru`);
+      } else {
+        logFeature('Retain', `${data.symbol} dipublish retain:true → broker simpan pesan ini untuk subscriber yang baru connect`);
+      }
 
     } else if (topic === 'crypto/alerts') {
       state.alerts.unshift({ ...data, id: Date.now() });
@@ -86,6 +90,7 @@ mqttClient.on('message', (topic, message, packet) => {
       state.publishers[publisher] = { ...data, retained: packet.retain };
       event = { type: 'status_update', publisher, data };
       if (data.status === 'offline') logFeature('LWT (Last Will Testament)', `${publisher} mati mendadak → broker otomatis publish "offline"`);
+      if (packet.retain) logFeature('Retain', `📌 Status ${publisher} diterima dari cache broker (${data.status})`);
     
     } else if (topic.startsWith('crypto/response/dashboard-')) {
       // Tangkap response dari alert publisher

@@ -308,7 +308,20 @@
       align-self: flex-start;
     }
 
-    .feature-detail { color: var(--muted); }
+    .feature-detail { color: var(--muted); flex: 1; }
+
+    .feature-ts {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #f0c040;
+      background: rgba(240,192,64,0.12);
+      border: 1px solid rgba(240,192,64,0.25);
+      border-radius: 3px;
+      padding: 1px 6px;
+      white-space: nowrap;
+      align-self: flex-start;
+      flex-shrink: 0;
+    }
 
     /* Trending */
     .trending-list { display: flex; flex-direction: column; gap: 6px; }
@@ -669,9 +682,11 @@
     const empty = log.querySelector('.empty-state');
     if (empty) empty.remove();
 
+    const ts = entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
     const el = document.createElement('div');
     el.className = 'feature-item';
     el.innerHTML = `
+      ${ts ? `<div class="feature-ts">${ts}</div>` : ''}
       <div class="feature-name">${entry.feature}</div>
       <div class="feature-detail">${entry.detail}</div>
     `;
