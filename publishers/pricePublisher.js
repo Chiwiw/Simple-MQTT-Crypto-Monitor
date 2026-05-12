@@ -62,21 +62,30 @@ client.on('connect', async () => {
 
 async function fetchAndPublish() {
   try {
-    // Fetch harga real dari CoinGecko (gratis, no API key)
-    const response = await axios.get(
-      'https://api.coingecko.com/api/v3/simple/price',
-      {
-        params: {
-          ids: COINS.join(','),
-          vs_currencies: 'usd',
-          include_24hr_change: true,
-          include_market_cap: true,
-        },
-        timeout: 8000,
-      }
-    );
-
-    const data = response.data;
+    let data;
+    try {
+      // Fetch harga real dari CoinGecko (gratis, no API key)
+      const response = await axios.get(
+        'https://api.coingecko.com/api/v3/simple/price',
+        {
+          params: {
+            ids: COINS.join(','),
+            vs_currencies: 'usd',
+            include_24hr_change: true,
+            include_market_cap: true,
+          },
+          timeout: 4000,
+        }
+      );
+      data = response.data;
+    } catch (apiErr) {
+      console.log('⚠️ CoinGecko API error/rate-limit. Menggunakan data simulasi...');
+      data = {
+        bitcoin: { usd: 64000 + (Math.random() * 1000 - 500), usd_24h_change: (Math.random() * 10 - 5), usd_market_cap: 1200000000000 },
+        ethereum: { usd: 3400 + (Math.random() * 100 - 50), usd_24h_change: (Math.random() * 10 - 5), usd_market_cap: 400000000000 },
+        solana: { usd: 140 + (Math.random() * 10 - 5), usd_24h_change: (Math.random() * 10 - 5), usd_market_cap: 60000000000 }
+      };
+    }
 
     for (const coin of COINS) {
       if (!data[coin]) continue;
