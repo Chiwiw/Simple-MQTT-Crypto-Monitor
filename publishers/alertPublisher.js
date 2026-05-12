@@ -4,10 +4,10 @@
 
 const mqtt = require('mqtt');
 
-const BROKER_URL = 'mqtt://localhost:1883';
+const BROKER_URL = 'mqtt://broker.emqx.io:1883';
 
 // Threshold alert: jika perubahan harga > X%
-const ALERT_THRESHOLD = 0.5; // 0.5% untuk demo (mudah ter-trigger)
+const ALERT_THRESHOLD = 0.1; // 0.1% untuk demo — mudah ter-trigger dengan data simulasi
 
 // Menyimpan harga sebelumnya untuk perbandingan
 const previousPrices = {};

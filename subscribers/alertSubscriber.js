@@ -4,11 +4,12 @@
 
 const mqtt = require('mqtt');
 
-const BROKER_URL = 'mqtt://localhost:1883';
+const BROKER_URL = 'mqtt://broker.emqx.io:1883';
 const RESPONSE_TOPIC = `crypto/response/alert-subscriber-${Date.now()}`;
 
 const client = mqtt.connect(BROKER_URL, {
   clientId: 'subscriber-alert',
+  protocolVersion: 5,
   clean: false,
   properties: { receiveMaximum: 10 },
 });

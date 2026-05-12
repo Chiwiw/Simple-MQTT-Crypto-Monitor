@@ -4,10 +4,11 @@
 
 const mqtt = require('mqtt');
 
-const BROKER_URL = 'mqtt://localhost:1883';
+const BROKER_URL = 'mqtt://broker.emqx.io:1883';
 
 const client = mqtt.connect(BROKER_URL, {
   clientId: 'subscriber-logger-1',
+  protocolVersion: 5,
   clean: false,
   properties: {
     // Fitur 10: Flow Control — batasi berapa pesan yang diterima sebelum ACK

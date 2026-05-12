@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 const PORT = 3000;
-const BROKER_URL = 'mqtt://localhost:1883';
+const BROKER_URL = 'mqtt://broker.emqx.io:1883';
 
 // State cache untuk dashboard
 const state = {
